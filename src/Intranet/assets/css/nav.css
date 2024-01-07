@@ -1,0 +1,85 @@
+.aside-nav.in {
+  animation: slideLeft 1s forwards;
+  display: flex;
+}
+.aside-nav.out {
+  animation: slideRight 1s forwards;
+}
+#aside-nav-desk.in-desk {
+  animation: slideLeftDesk 1s forwards;
+}
+#aside-nav-desk.out-desk {
+  animation: slideRightDesk 1s forwards;
+}
+#btn-nav-desk {
+  position: relative;
+}
+#aside-nav-desk.in-desk #btn-nav-desk {
+  display: block;
+  animation: slideLeft 1s forwards;
+}
+#aside-nav-desk.out-desk #btn-nav-desk {
+  animation: slideRight 1s forwards;
+}
+#intranet-main.in {
+  animation: slideLeftMain 1s forwards;
+}
+#intranet-main.out {
+  animation: slideRightMain 1s forwards;
+}
+
+@keyframes slideLeft {
+  from {
+    left: -200px; /* Start position outside the viewport */
+    opacity: 0;
+  }
+  to {
+    left: 0; /* End position with a left offset of 0 */
+    opacity: 1;
+  }
+}
+
+@keyframes slideRight {
+  from {
+    left: 0; /* End position with a left offset of 0 */
+    opacity: 1;
+  }
+  to {
+    left: -200px; /* Start position outside the viewport */
+    opacity: 0;
+    display: none;
+  }
+}
+@keyframes slideLeftDesk {
+  from {
+    width: 3.5rem; /* Start position outside the viewport */
+  }
+  to {
+    width: 10rem; /* End position with a left offset of 0 */
+  }
+}
+
+@keyframes slideRightDesk {
+  from {
+    width: 10rem; /* End position with a left offset of 0 */
+  }
+  to {
+    width: 3.5rem;
+  }
+}
+@keyframes slideLeftMain {
+  from {
+    margin-left: 3rem; /* Start position outside the viewport */
+  }
+  to {
+    margin-left: 10rem; /* End position with a left offset of 0 */
+  }
+}
+@keyframes slideRightMain {
+  from {
+    margin-left: 10rem; /* Start position outside the viewport */
+  }
+  to {
+    margin-left: 3rem; /* End position with a left offset of 0 */
+  }
+}

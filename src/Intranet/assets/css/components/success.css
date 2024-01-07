@@ -1,0 +1,32 @@
+.popup-success {
+}
+
+.popup-success.show {
+  animation: showTop 2s forwards;
+}
+.popup-success.hide {
+  animation: hideTop 2s forwards;
+}
+
+@keyframes showTop {
+  from {
+    top: -20px; /* Start position outside the viewport */
+    opacity: 0;
+  }
+  to {
+    top: 20px; /* End position with a left offset of 0 */
+    opacity: 1;
+  }
+}
+
+@keyframes hideTop {
+  from {
+    top: 20px; /* End position with a left offset of 0 */
+    opacity: 1;
+  }
+  to {
+    top: -20px; /* Start position outside the viewport */
+    opacity: 0;
+    display: none;
+  }
+}
