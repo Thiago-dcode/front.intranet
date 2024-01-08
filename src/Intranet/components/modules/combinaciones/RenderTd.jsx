@@ -119,7 +119,7 @@ export default function RenderTd({ handleChange, _key, value, i }) {
                 className="max-w-[4rem] text-xs "
                 value={value.id}
               >
-                <option value="">-</option>
+                <option value={undefined}>-</option>
                 {Array.isArray(arrayData) &&
                   arrayData &&
                   arrayData.map((obj, _i) => {
@@ -155,6 +155,7 @@ export default function RenderTd({ handleChange, _key, value, i }) {
                   className="max-w-[4rem] text-xs"
                   defaultValue={value.id}
                 >
+                  <option value="">-</option>
                   {tree.map((branch) => {
                     return (
                       <option
@@ -177,45 +178,31 @@ export default function RenderTd({ handleChange, _key, value, i }) {
               {Array.isArray(value.data) && (
                 <select
                   onChange={(e) => {
-                    if (Array.isArray(desahabilitado)) {
-                      setDeshabilitado((prev) => [e.target.value, ...prev]);
-                    } else {
-                      setDeshabilitado([]);
-                    }
-
-                    if (!value.hasOwnProperty("deshab")) {
-                      document.getElementById(
-                        `${i}-option-${e.target.value}`
-                      ).style.display = "none";
-                    }
+                    if (e.target.value === "-") return;
+                    handleChange(i, _key, `add_${e.target.value}`);
                   }}
                   id={`${i}-${key}`}
                   className="right-[0.02rem] overflow-auto  z-10 h-5 w-full flex flex-col items-center "
                 >
-                  <option value="" disabled hidden>
-                    Select
-                  </option>
-
+                  <option value="-">-</option>
                   {value.data
-                    ? value.data
-                        .filter((data) => !desahabilitado.includes(data))
-                        .map((data, _i) => {
-                          return (
-                            <option
-                              key={`deshabilitar-${data}-${_i}`}
-                              className="w-full"
-                              value={data}
-                            >
-                              {data}
-                            </option>
-                          );
-                        })
+                    ? value.data.sort().map((data, _i) => {
+                        return (
+                          <option
+                            key={`deshabilitar-${data}-${_i}`}
+                            className="w-full"
+                            value={data}
+                          >
+                            {data}
+                          </option>
+                        );
+                      })
                     : null}
                 </select>
               )}
-              {Array.isArray(desahabilitado) && (
+              {Array.isArray(value.deshab) && value.deshab && (
                 <ul className="  w-14 flex  gap-[0.1rem] flex-col overflow-auto">
-                  {desahabilitado.map((d, _i) => {
+                  {value.deshab.map((d, _i) => {
                     return (
                       <li
                         key={`deshabilitado-${d}`}
@@ -223,17 +210,7 @@ export default function RenderTd({ handleChange, _key, value, i }) {
                       >
                         <button
                           onClick={() => {
-                            const remove = desahabilitado.filter(
-                              (_d) => _d !== d
-                            );
-
-                            setDeshabilitado(remove);
-
-                            if (!value.hasOwnProperty("deshab")) {
-                              document.getElementById(
-                                `${i}-option-${d}`
-                              ).style.display = "block";
-                            }
+                            handleChange(i, _key, `del_${d}`);
                           }}
                           className="px-0.5 text-center border-r border-r-white "
                         >
@@ -262,34 +239,22 @@ export default function RenderTd({ handleChange, _key, value, i }) {
                 className="w-full h-full hover:h-14 items-center overflow-auto flex-col justify-center"
               >
                 {value.data.map((data, _i) => {
-                  if (key === "codbar") {
-                    return (
-                      <input
-                        onChange={(e) => {
-                          handleChange(i, _key,`${_i}_${data.VALORCARACT}_${e.target.value}`);
-                        }}
-                        key={`${i}-${key}_${data.VALORCARACT}`}
-                        title={data.VALORCARACT}
-                        name={`${i}_${key}_${data.VALORCARACT}`}
-                        className="w-10 max-h-2 mr-2"
-                        type="text"
-                        placeholder={data.VALORCARACT}
-                        defaultValue={data.CODBARRAS}
-                      />
-                    );
-                  }
                   return (
                     <input
-                    onChange={(e) => {
-                      handleChange(i, _key,`${_i}_${data.VALORCARACT}_${e.target.value}`);
-                    }}
-                      key={`${i}-${key}_${data.VALORCARACT}`}
-                      title={data.VALORCARACT}
-                      name={`${i}_${key}_${data.VALORCARACT}`}
-                      className="w-10 max-h-2"
+                      onChange={(e) => {
+                        handleChange(
+                          i,
+                          _key,
+                          `${_i}_${data.valorcaract}_${e.target.value}`
+                        );
+                      }}
+                      key={`${i}-${key}_${data.valorcaract}`}
+                      title={data.valorcaract}
+                      name={`${i}_${key}_${data.valorcaract}`}
+                      className="w-10 max-h-2 mr-2"
                       type="text"
-                      placeholder={data.VALORCARACT}
-                      defaultValue={data.PRECIO}
+                      placeholder={data.valorcaract}
+                      defaultValue={data.value}
                     />
                   );
                 })}

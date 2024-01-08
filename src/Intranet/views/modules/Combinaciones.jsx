@@ -56,15 +56,16 @@ export default function Combinaciones() {
     const lastItem = JSON.parse(
       JSON.stringify(combinaciones[combinaciones.length - 1])
     );
-    console.log(combinaciones[combinaciones.length - 1])
-    console.log(lastItem)
+    console.log(combinaciones[combinaciones.length - 1]);
+    console.log(lastItem);
     const updatedLastItem = {
       ...lastItem,
+      S_COD: { ...lastItem.S_COD,data:'', readonly: true },
       S_REF: { ...lastItem.S_REF, readonly: false },
       S_nom: { ...lastItem.S_nom, readonly: false },
       S_talla: { ...lastItem.S_talla, readonly: false },
       S_color: { ...lastItem.S_color, readonly: false },
-      I_info: { ...lastItem.I_info, isInsert: 1 },
+      I_info: { ...lastItem.I_info, isInsert: true, modified: true },
     };
 
     setCombinaciones((prev) => [...prev, updatedLastItem]);
@@ -81,15 +82,16 @@ export default function Combinaciones() {
     const coste = roundTo(
       (parseFloat(!precio.data ? 0 : precio.data) / 100) *
         (100 - parseFloat(!descuento.data ? 0 : descuento.data)),
-      8
+      2
     );
+    combinacion["S_coste"].data = coste < 0 ? 0 : coste;
     const venta = roundTo(
       parseFloat(combinacion["S_coste"].data) +
         combinacion["S_coste"].data *
           (parseFloat(!margen.data ? 0 : margen.data) / 100),
-      8
+      2
     );
-    combinacion["S_coste"].data = coste < 0 ? 0 : coste;
+   
     combinacion["S_P.V.A"].data = venta < 0 ? 0 : venta;
   }, []);
   const handleColorTalla = useCallback((combinacion) => {
@@ -102,51 +104,64 @@ export default function Combinaciones() {
         valorcaracts.push(`${col}-${tal}`);
       });
     });
-    const compraVenta = valorcaracts.map((valorcaract) => {
+    const cTypeArr = valorcaracts.map((valorcaract) => {
       return {
-        PRECIO: null,
-        VALORCARACT: valorcaract,
+         valorcaract,
+        value: null,
+       
       };
     });
-    combinacion["C_compra"].data = compraVenta;
-    combinacion["C_venta"].data = compraVenta;
-    combinacion["C_codbar"].data = valorcaracts.map((valorcaract) => {
-      return {
-        CODBARRAS: "",
-        VALORCARACT: valorcaract,
-      };
-    });
+    combinacion["C_compra"].data = cTypeArr;
+    combinacion["C_venta"].data = cTypeArr;
+    combinacion["C_codbar"].data = cTypeArr;
+    
     combinacion["D_deshab"].data = valorcaracts;
   }, []);
-const handleCType = useCallback((value,key,combinacion)=>{
+  const handleCType = useCallback((value, _key, combinacion) => {
+    const [i, valorcaract, _value] = value.split("_");
+    let obj = {
+      valorcaract: valorcaract,
+    };
+    if (typeof combinacion[_key].data[parseInt(i)] === "undefined") {
+      combinacion[_key].data.push(obj);
+    }
+    obj.value = _value;
+    if (key === "compra" || key === "venta") {
+      obj.value = isNaN(parseFloat(_value)) ? 0 : parseFloat(_value);
+    }
+    combinacion[_key].data[parseInt(i)] = obj;
+  }, []);
 
-  const [i,valorcaract,_value] = value.split('_')
-  let obj = {
-    VALORCARACT:valorcaract
-  }
-  if(typeof combinacion['C_'+key].data[parseInt(i)] ==='undefined'){
-    combinacion['C_'+key].data.push(obj)
-  }
-  if(key ==='compra'|| key ==='venta'){
-    obj['PRECIO'] = isNaN(parseFloat(_value))? 0:parseFloat(_value)
-  }else{
-    obj['CODBARRAS'] = _value
-  }
-  
-  combinacion['C_'+key].data[parseInt(i)] = obj
-  
-},[])
+  const handleDeshab = useCallback((value, _key, combinacion) => {
+    const [action, data] = value.split("_");
+    console.log("action, data", action, data);
+    switch (action) {
+      case "add":
+        combinacion[_key].data = combinacion[_key].data.filter(
+          (d) => d !== data
+        );
+        combinacion[_key].deshab = [data, ...combinacion[_key].deshab];
+        break;
+      case "del":
+        combinacion[_key].deshab = combinacion[_key].deshab.filter(
+          (d) => d !== data
+        );
+        combinacion[_key].data = [data, ...combinacion[_key].data];
+        break;
+      default:
+        break;
+    }
+  }, []);
   const handleChange = (i, _key, value) => {
-
     let combinacion = JSON.parse(JSON.stringify(combinaciones[i]));
     const [type, key] = _key.split("_");
     switch (type) {
       case "S":
         combinacion[_key].data = value;
         if (key === "precio" || key === "des" || key === "marg") {
-          const num = value ? parseFloat(value): 0;
-          console.log(num)
-          if(isNaN(num)) return
+          const num = value ? parseFloat(value) : 0;
+
+          if (isNaN(num)) return;
           combinacion[_key].data = value;
           handlePrice(combinacion);
         }
@@ -156,30 +171,32 @@ const handleCType = useCallback((value,key,combinacion)=>{
         break;
 
       case "A":
-        console.log('_key',key)
         combinacion[_key].id = value;
         if (_key === "A_hombre/mujer") {
-          combinacion[_key].id = parseInt(value);
-          getCatWeb(company.name, parseInt(value), i);
-        }
+          
+          if(value)
+         { getCatWeb(company.name, parseInt(value), i);
+        }}
         break;
       case "T":
-       
         combinacion[_key].id = value;
         break;
-        case "C":
+      case "C":
         // eslint-disable-next-line no-case-declarations
-        const [_i,valorcaract,data] = value.split('_');
-        console.log(_i,valorcaract,data);
+
         // eslint-disable-next-line no-case-declarations
-         handleCType(value,key,combinacion)
-        
+        handleCType(value, _key, combinacion);
+
+        break;
+      case "D":
+        handleDeshab(value, _key, combinacion);
+
         break;
 
       default:
         break;
     }
-    combinacion['I_info'].modified= true
+    combinacion["I_info"].modified = true;
     setCombinaciones((prev) =>
       prev.map((item, j) => {
         if (j === i) return combinacion;
@@ -189,83 +206,54 @@ const handleCType = useCallback((value,key,combinacion)=>{
   };
   const handleSubmitUpdate = (e) => {
     e.preventDefault();
-    let rows = [];
-    // console.log(e.target)
-    for (let i = 0; i < e.target.length; i++) {
-      const element = e.target[i];
-      const [index, name] = element.name.split("_");
+    let insertForm = [];
+    let updateForm = [];
+    for (let i = 0; i < combinaciones.length; i++) {
+      let objForm = {};
+      const combinacion = combinaciones[i];
+      if (!combinacion["I_info"].modified || !combinacion["S_REF"].data || !combinacion["S_nom"].data) continue;
+      const entries = Object.entries(combinacion);
+      for (let j = 0; j < entries.length; j++) {
+        try {
+          const [_key, value] = entries[j];
+          const [type, key] = _key.split("_");
+          switch (type) {
+            case "S":
+              objForm[key] = value.data;
+              break;
+            case "A":
+              objForm[key] = value.id;
+              break;
+            case "T":
+              objForm[key] = value.id;
+              break;
+            case "C":
+              objForm[key] = value.data.filter(d=>d.value)
+              break;
+            case "D":
+              objForm[key] = value.deshab;
+              break;
 
-      if (rows.includes(parseInt(index))) continue;
-
-      rows.push(parseInt(index));
-    }
-
-    let form = [];
-
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i];
-      if (isNaN(row)) continue;
-      let obj = {};
-
-      for (let j = 0; j < e.target.length; j++) {
-        const element = e.target[j];
-        const [index, key, comb] = element.name.split("_");
-        if (isNaN(parseInt(index))) continue;
-        if (parseInt(index) !== row) continue;
-
-        if (
-          key === "venta" ||
-          key === "compra" ||
-          key === "codbar" ||
-          key === "deshab"
-        ) {
-          if (!element.value) continue;
-          if (!obj.hasOwnProperty(key)) {
-            obj[key] = [];
+            default:
+              break;
           }
-          obj[key].push({
-            VALORCARACT: comb,
-            value: element.value,
-          });
-          continue;
+        } catch (error) {
+          console.log(
+            `Error handling form ${j} ${entries[j]} ${error.message}`
+          );
         }
-
-        obj[key] = element.value;
       }
-      form.push(obj);
+      if (combinacion["I_info"].isInsert) insertForm.push(objForm);
+      else updateForm.push(objForm);
     }
-    let formToInsert = [];
-    let formToUpdate = [];
-
-    console.log("FORM:", form);
-    return;
-
-    form.forEach((f) => {
-      if (parseInt(f.isInsert)) {
-        if (f.REF && f.nom && f.precio) {
-          formToInsert.push(f);
-        }
-      } else {
-        formToUpdate.push(f);
-      }
-
-      delete f.isInsert;
-    });
-
-    if (formToInsert.length > 0) {
-      console.log("inserts", formToInsert);
-      setInsertForm(formToInsert);
-    }
-    if (formToUpdate.length > 0) {
-      console.log("updates", formToUpdate);
-      setUpdateForm(formToUpdate);
-    }
+    console.log("INSERT FORM:", insertForm);
+    console.log("UPDATE FORM:", updateForm);
+    
+  
   };
-const handleRemoveRow = (row) =>{
-
-setCombinaciones(prev=>prev.filter((item,i)=> i!==row))
-
-}
+  const handleRemoveRow = (row) => {
+    setCombinaciones((prev) => prev.filter((item, i) => i !== row));
+  };
   const handleArticulos = (articulo) => {
     setCodArticulo(articulo);
     setProveedor("");
@@ -278,11 +266,13 @@ setCombinaciones(prev=>prev.filter((item,i)=> i!==row))
   useEffect(() => {
     setIsUpdate(false);
     setUrl(`${company.name}/modules/combinaciones/template`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (!url) return;
     setConfig("/api/" + url, [], "GET");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [url]);
   useEffect(() => {
     if (data && !error) {
@@ -295,53 +285,6 @@ setCombinaciones(prev=>prev.filter((item,i)=> i!==row))
       } else {
         setCombinaciones((prev) => [...prev, ...articulos]);
       }
-
-      // if (isSearch) {
-
-      //     if (isUpdate) {
-      //         console.log(data)
-      //         setCount(data.data.count);
-      //         setCombinaciones(data.data.data);
-      //         return;
-      //     }
-
-      //     if (combinaciones.length === 0) {
-      //         console.log('template=>', data.data)
-      //         setCombinaciones(prev => [...prev, ...data.data.data])
-      //         return;
-      //     }
-
-      //     try {
-
-      //         const newArticle = Object.keys(lastArticle).length > 1 ? lastArticle : combinaciones[combinaciones.length - 1];
-
-      //         if (Object.keys(newArticle).length > 1) {
-      //             Object.keys(newArticle).forEach(_key => {
-      //                 const [type, key] = _key.split('_');
-
-      //                 if (key === 'COD' || key === 'nom' || key === 'REF' || key === 'info') {
-
-      //                     newArticle[_key] = data.data.data[0][_key];
-
-      //                 }
-      //                 if (key !== 'COD' && key !== 'P.V.A' && key !== 'coste') {
-
-      //                     newArticle[_key].readonly = false;
-
-      //                 }
-      //             })
-      //         }
-      //         console.log('new data: ', newArticle);
-      //         setCombinaciones(prev => [...prev, (Object.keys(newArticle).length < 1 ? data.data.data[0] : newArticle)])
-
-      //     } catch (error) {
-      //         console.log(error);
-      //     }
-
-      //     return;
-
-      // }
-      // setCombinaciones(prev => [...prev, ...data.data.data])
     }
   }, [data, error]);
 
@@ -356,6 +299,15 @@ setCombinaciones(prev=>prev.filter((item,i)=> i!==row))
   }, [updateForm]);
 
   useEffect(() => {
+    if (Object.keys(insertForm).length) {
+      setConfigInsert(
+        `/api/${company.name}/modules/combinaciones/insert`,
+        insertForm,
+        "POST"
+      );
+    }
+  }, [insertForm]);
+  useEffect(() => {
     if (update && !errorUpdate) {
       setCombinaciones([]);
       console.log("Success update:", update.data);
@@ -368,16 +320,6 @@ setCombinaciones(prev=>prev.filter((item,i)=> i!==row))
     }
     console.log("Error update:", errorUpdate);
   }, [update, errorUpdate]);
-
-  useEffect(() => {
-    if (Object.keys(insertForm).length) {
-      setConfigInsert(
-        `/api/${company.name}/modules/combinaciones/insert`,
-        insertForm,
-        "POST"
-      );
-    }
-  }, [insertForm]);
 
   useEffect(() => {
     if (insert && !errorInsert) {
@@ -410,7 +352,7 @@ setCombinaciones(prev=>prev.filter((item,i)=> i!==row))
     );
   }, [categoriaWeb, key]);
   useEffect(() => {
-    console.log("combinaciones", combinaciones);
+    // console.log("combinaciones", combinaciones);
   }, [combinaciones]);
 
   return (
@@ -498,15 +440,13 @@ flex-col gap-3 p-4"
                     >
                       <td className=" border border-slate-300  text-xs  text-center w-2">
                         <Button
-                        bgColor="red"
-                        content="x"
-                        className="w-5 h-5 rounded-sm font-bold text-lg flex items-center justify-center"
-                        handleBtn={handleRemoveRow}
+                          bgColor="red"
+                          content="x"
+                          className="w-5 h-5 rounded-sm font-bold text-lg flex items-center justify-center"
+                          handleBtn={handleRemoveRow}
                           params={[_i]}
                           type="button"
-                        >
-                        
-                        </Button>
+                        ></Button>
                       </td>
                       <td className=" border border-slate-300  text-xs  text-center w-2">
                         {_i + 1}
