@@ -48,6 +48,14 @@ export default function Combinaciones() {
     }
     setUrl(newUrl);
   };
+  const handleArticulos = (articulo) => {
+    setCodArticulo(articulo);
+    setProveedor("");
+  };
+  const handleProveedor = (prov) => {
+    setProveedor(prov);
+    setCodArticulo("");
+  };
   const handleAgregar = () => {
     if (!combinaciones.length) {
       handleAddInsert();
@@ -60,7 +68,7 @@ export default function Combinaciones() {
     console.log(lastItem);
     const updatedLastItem = {
       ...lastItem,
-      S_COD: { ...lastItem.S_COD,data:'', readonly: true },
+      S_COD: { ...lastItem.S_COD, data: "", readonly: true },
       S_REF: { ...lastItem.S_REF, readonly: false },
       S_nom: { ...lastItem.S_nom, readonly: false },
       S_talla: { ...lastItem.S_talla, readonly: false },
@@ -91,7 +99,7 @@ export default function Combinaciones() {
           (parseFloat(!margen.data ? 0 : margen.data) / 100),
       2
     );
-   
+
     combinacion["S_P.V.A"].data = venta < 0 ? 0 : venta;
   }, []);
   const handleColorTalla = useCallback((combinacion) => {
@@ -106,15 +114,14 @@ export default function Combinaciones() {
     });
     const cTypeArr = valorcaracts.map((valorcaract) => {
       return {
-         valorcaract,
+        valorcaract,
         value: null,
-       
       };
     });
     combinacion["C_compra"].data = cTypeArr;
     combinacion["C_venta"].data = cTypeArr;
     combinacion["C_codbar"].data = cTypeArr;
-    
+
     combinacion["D_deshab"].data = valorcaracts;
   }, []);
   const handleCType = useCallback((value, _key, combinacion) => {
@@ -126,7 +133,7 @@ export default function Combinaciones() {
       combinacion[_key].data.push(obj);
     }
     obj.value = _value;
-    if (key === "compra" || key === "venta") {
+    if (_key === "C_compra" || _key === "C_venta") {
       obj.value = isNaN(parseFloat(_value)) ? 0 : parseFloat(_value);
     }
     combinacion[_key].data[parseInt(i)] = obj;
@@ -173,10 +180,10 @@ export default function Combinaciones() {
       case "A":
         combinacion[_key].id = value;
         if (_key === "A_hombre/mujer") {
-          
-          if(value)
-         { getCatWeb(company.name, parseInt(value), i);
-        }}
+          if (value) {
+            getCatWeb(company.name, parseInt(value), i);
+          }
+        }
         break;
       case "T":
         combinacion[_key].id = value;
@@ -204,14 +211,19 @@ export default function Combinaciones() {
       })
     );
   };
-  const handleSubmitUpdate = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    let insertForm = [];
-    let updateForm = [];
+    let toInsert = [];
+    let toUpdate = [];
     for (let i = 0; i < combinaciones.length; i++) {
       let objForm = {};
       const combinacion = combinaciones[i];
-      if (!combinacion["I_info"].modified || !combinacion["S_REF"].data || !combinacion["S_nom"].data) continue;
+      if (
+        !combinacion["I_info"].modified ||
+        !combinacion["S_REF"].data ||
+        !combinacion["S_nom"].data
+      )
+        continue;
       const entries = Object.entries(combinacion);
       for (let j = 0; j < entries.length; j++) {
         try {
@@ -228,7 +240,7 @@ export default function Combinaciones() {
               objForm[key] = value.id;
               break;
             case "C":
-              objForm[key] = value.data.filter(d=>d.value)
+              objForm[key] = value.data.filter((d) => d.value);
               break;
             case "D":
               objForm[key] = value.deshab;
@@ -243,25 +255,14 @@ export default function Combinaciones() {
           );
         }
       }
-      if (combinacion["I_info"].isInsert) insertForm.push(objForm);
-      else updateForm.push(objForm);
+      if (combinacion["I_info"].isInsert) toInsert.push(objForm);
+      else toUpdate.push(objForm);
     }
-    console.log("INSERT FORM:", insertForm);
-    console.log("UPDATE FORM:", updateForm);
+    if(toUpdate)setUpdateForm(toUpdate);
+    if(toInsert)setInsertForm(toInsert)
     
-  
   };
-  const handleRemoveRow = (row) => {
-    setCombinaciones((prev) => prev.filter((item, i) => i !== row));
-  };
-  const handleArticulos = (articulo) => {
-    setCodArticulo(articulo);
-    setProveedor("");
-  };
-  const handleProveedor = (prov) => {
-    setProveedor(prov);
-    setCodArticulo("");
-  };
+
 
   useEffect(() => {
     setIsUpdate(false);
@@ -403,7 +404,7 @@ flex-col gap-3 p-4"
       success.length < 1 ? (
         <form
           onSubmit={(e) => {
-            handleSubmitUpdate(e);
+            handleSubmit(e);
           }}
           className=" flex flex-col  h-3/4 items-center gap-3  z-10 w-full "
         >
@@ -443,8 +444,12 @@ flex-col gap-3 p-4"
                           bgColor="red"
                           content="x"
                           className="w-5 h-5 rounded-sm font-bold text-lg flex items-center justify-center"
-                          handleBtn={handleRemoveRow}
-                          params={[_i]}
+                          handleBtn={() => {
+                            setCombinaciones((prev) =>
+                              prev.filter((item, i) => i !== _i)
+                            );
+                          }}
+                          params={[]}
                           type="button"
                         ></Button>
                       </td>

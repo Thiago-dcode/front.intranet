@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { useEffect } from "react";
-import useAjax from "../../../../hooks/useAjax";
-import { capitalize, roundTo, handlePrice } from "../../../../utils/Utils";
+
 
 export default function RenderTd({ handleChange, _key, value, i }) {
   const [arrayData, setArrayData] = useState([]);
-  const [desahabilitado, setDeshabilitado] = useState([]);
+
 
   const printTree = (tree, __tree = []) => {
     let _tree = __tree;
@@ -35,14 +34,7 @@ export default function RenderTd({ handleChange, _key, value, i }) {
       console.log("useEffect:", error);
     }
 
-    if (_key === "D_deshab" && value.hasOwnProperty("deshab")) {
-      try {
-        const deshab = value.deshab.map((d) => d.VALORCARACT);
-        // setDeshabilitado(deshab)
-      } catch (error) {
-        console.log(error);
-      }
-    }
+   
   }, [_key, value]);
 
   const renderTd = (_key, value, i) => {
@@ -68,19 +60,19 @@ export default function RenderTd({ handleChange, _key, value, i }) {
           return (
             <td className="hover:max-w-[6rem] max-w-[4rem]  border border-slate-300  text-center ">
               <input
-                placeholder={value.placeholder}
+                placeholder={value?.placeholder}
                 id={`${i}-${key}`}
                 onChange={(e) => {
                   handleChange(i, _key, e.target.value);
                 }}
-                style={value.readonly ? readonlyStyle : {}}
-                value={value.data}
-                title={value.data}
-                readOnly={value.readonly}
+                style={value?.readonly ? readonlyStyle : {}}
+                value={value?.data}
+                title={value?.data}
+                readOnly={value?.readonly}
                 name={`${i}_${key}`}
                 className="w-full text-[0.7rem] "
                 type={
-                  (key === "color" || key === "talla") && value.readonly
+                  (key === "color" || key === "talla") && value?.readonly
                     ? "hidden"
                     : "text"
                 }
@@ -117,7 +109,7 @@ export default function RenderTd({ handleChange, _key, value, i }) {
                   handleChange(i, _key, e.target.value);
                 }}
                 className="max-w-[4rem] text-xs "
-                value={value.id}
+                value={value?.id}
               >
                 <option value={undefined}>-</option>
                 {Array.isArray(arrayData) &&
@@ -127,10 +119,10 @@ export default function RenderTd({ handleChange, _key, value, i }) {
                       <option
                         key={`${i}-${key}-${_i}`}
                         className="w-full pr-2"
-                        title={obj.NOMBRE}
-                        value={obj.CODIGO}
+                        title={obj?.NOMBRE}
+                        value={obj?.CODIGO}
                       >
-                        {obj.NOMBRE}
+                        {obj?.NOMBRE}
                       </option>
                     );
                   })}
@@ -153,17 +145,17 @@ export default function RenderTd({ handleChange, _key, value, i }) {
                   id={`${i}-${key}`}
                   name={`${i}_${key}`}
                   className="max-w-[4rem] text-xs"
-                  defaultValue={value.id}
+                  defaultValue={value?.id}
                 >
-                  <option value="">-</option>
+                  <option value={undefined}>-</option>
                   {tree.map((branch) => {
                     return (
                       <option
                         key={`${i}-${key}-${branch.id}`}
                         className="w-full"
-                        value={branch.id}
+                        value={branch?.id}
                       >
-                        {branch.name}
+                        {branch?.name}
                       </option>
                     );
                   })}
@@ -175,7 +167,7 @@ export default function RenderTd({ handleChange, _key, value, i }) {
         case "D":
           return (
             <td className=" min-w-[7rem]   overflow-auto   flex flex-col w-full px-1 border border-slate-300  text-center justify-between relative ">
-              {Array.isArray(value.data) && (
+              {Array.isArray(value?.data) && (
                 <select
                   onChange={(e) => {
                     if (e.target.value === "-") return;
@@ -186,7 +178,7 @@ export default function RenderTd({ handleChange, _key, value, i }) {
                 >
                   <option value="-">-</option>
                   {value.data
-                    ? value.data.sort().map((data, _i) => {
+                    ? value?.data.sort().map((data, _i) => {
                         return (
                           <option
                             key={`deshabilitar-${data}-${_i}`}
@@ -248,13 +240,13 @@ export default function RenderTd({ handleChange, _key, value, i }) {
                           `${_i}_${data.valorcaract}_${e.target.value}`
                         );
                       }}
-                      key={`${i}-${key}_${data.valorcaract}`}
-                      title={data.valorcaract}
-                      name={`${i}_${key}_${data.valorcaract}`}
+                      key={`${_i}-${key}_${data?.valorcaract}`}
+                      title={data?.valorcaract}
+                      name={`${_i}_${key}_${data?.valorcaract}`}
                       className="w-10 max-h-2 mr-2"
                       type="text"
-                      placeholder={data.valorcaract}
-                      defaultValue={data.value}
+                      placeholder={data?.valorcaract}
+                      defaultValue={data?.value}
                     />
                   );
                 })}
@@ -267,7 +259,7 @@ export default function RenderTd({ handleChange, _key, value, i }) {
             <input
               name={`${i}_${"isInsert"}`}
               type="hidden"
-              value={value.isInsert}
+              value={value?.isInsert}
             />
           );
 
