@@ -31,9 +31,7 @@ export default function useAjax(
 
 
   }
-  const flushData = ()=>{
-    setData(null)
-  }
+
   const ajax = async (signal) => {
 
     setError("");
@@ -42,9 +40,8 @@ export default function useAjax(
 
       if (_url === "/api/login") {
 
-        const response = await Api.get("/sanctum/csrf-cookie");
-
-		      console.log(response);
+       await Api.get("/sanctum/csrf-cookie");
+		  
         }
       if (import.meta.env.DEV) {
         console.log(form)
@@ -100,5 +97,5 @@ export default function useAjax(
     }
   }, [_data, error]);
 
-  return [_data, error, isPending, setConfig, flushData];
+  return [_data, error, isPending, setConfig];
 }

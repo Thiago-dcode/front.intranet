@@ -5,6 +5,7 @@ import Graficos from './Intranet/views/modules/Graficos';
 import Email from './Intranet/views/modules/Email';
 import CustomModule from './Intranet/views/modules/CustomModule';
 import Combinaciones from './Intranet/views/modules/Combinaciones';
+import ImportArticulos from './Intranet/views/modules/ImportArticulos';
 
  export const modules = [
 {
@@ -34,5 +35,9 @@ element: <CustomModule />,
 {
  path: 'combinaciones' ,
 element: <Combinaciones />,
+},
+{
+ path: 'importar-articulos' ,
+element: <ImportArticulos />,
 },
 ];
