@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import useAjax from "../../../../hooks/useAjax";
 
 const useCategoriaWeb = () => {
-  const [data, error, isPending, setConfig, flushData] = useAjax();
+  const [data, error, isPending, setConfig] = useAjax();
   const [memoData, setMemoData] = useState({});
   const [categoriaWeb, setCategoriaWeb] = useState([]);
   const [key, setKey] = useState(null);
   const [id, setId] = useState(null);
   const getCatWeb = (company, id, key) => {
     setCategoriaWeb([]);
-    flushData();
+   
 
     if (!company || isNaN(id) || isNaN(key)) {
       return;

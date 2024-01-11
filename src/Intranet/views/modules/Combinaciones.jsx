@@ -30,6 +30,7 @@ export default function Combinaciones() {
   const [insert, errorInsert, isPendingInsert, setConfigInsert] = useAjax();
 
   const handleSearch = (e) => {
+    setSuccess(false)
     e.preventDefault();
     const btn = e.nativeEvent.submitter.name;
     setSuccess([]);
@@ -64,8 +65,7 @@ export default function Combinaciones() {
     const lastItem = JSON.parse(
       JSON.stringify(combinaciones[combinaciones.length - 1])
     );
-    console.log(combinaciones[combinaciones.length - 1]);
-    console.log(lastItem);
+
     const updatedLastItem = {
       ...lastItem,
       S_COD: { ...lastItem.S_COD, data: "", readonly: true },
@@ -141,7 +141,7 @@ export default function Combinaciones() {
 
   const handleDeshab = useCallback((value, _key, combinacion) => {
     const [action, data] = value.split("_");
-    console.log("action, data", action, data);
+   
     switch (action) {
       case "add":
         combinacion[_key].data = combinacion[_key].data.filter(
@@ -276,17 +276,22 @@ export default function Combinaciones() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [url]);
   useEffect(() => {
-    if (data && !error) {
-      setUrl("");
-      const { isTemplate, count, articulos } = data.data;
-      console.log("data", isTemplate, count, articulos);
-      setCount(count);
-      if (isTemplate) {
-        setCombinaciones(articulos);
-      } else {
-        setCombinaciones((prev) => [...prev, ...articulos]);
-      }
+ try {
+  if (data && !error) {
+    setUrl("");
+    if(!data.hasOwnProperty('data')) return
+    const { isTemplate, count, articulos } = data.data;
+   
+    setCount(count);
+    if (isTemplate) {
+      setCombinaciones(articulos);
+    } else {
+      setCombinaciones((prev) => [...prev, ...articulos]);
     }
+  }
+ } catch (error) {
+  
+ }
   }, [data, error]);
 
   useEffect(() => {
