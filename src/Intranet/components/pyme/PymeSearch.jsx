@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import IsPending from '../../../components/pending/IsPending';
 export default function PymeSearch({ isPending, handleBtn, handleSearch, setCodArticulo, setProveedor, codArticulo = '', proveedor = '' }) {
     const company = useCompany();
-    const [proveedores, error, _isPending, setConfig] = useAjax();
+    const [proveedores, error, _isPendingProveed, setConfig] = useAjax();
 
     useEffect(() => {
         if (!company) return
