@@ -53,7 +53,7 @@ export default function ImportArticulos() {
             return;
         }
         if (error) {
-            if(!error.hasOwnProperty(errors)) return
+            if (!error.hasOwnProperty(errors)) return
             setErrors(prev => [...Object.entries(error?.errors).map(([, value]) => value), ...prev])
         }
     }, [data, error]);

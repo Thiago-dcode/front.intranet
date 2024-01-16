@@ -57,7 +57,7 @@ export default function Middle() {
     if (user?.companies?.length !== 1) {
       return
 
-    };
+    }
 
     setCompany(user.companies[0].name)
 

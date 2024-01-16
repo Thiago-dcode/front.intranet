@@ -53,7 +53,7 @@ export default function AsideNavPhone({ company, modules, setModule }) {
                         return (
                             <NavLink handleClick={(e) => {
                                 setDisplay(false)
-                                setModule(mod.id);
+                                setModule(mod);
                             }} key={'module-link-phone-' + i} id={'module-link-phone-' + i} to={`/${company}/${mod.route}`}>
                                 <Icon icon={mod.logo} />
                                 <button id={'module-button-phone-' + i}
