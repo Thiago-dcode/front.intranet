@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 // import Icon from '../../components/icon/Icon';
+import Success from "../../components/popup/Success";
 import { useNavigate } from "react-router-dom";
 import { useCompany } from "../../../Context/ContextProvider";
 import useAjax from "../../../hooks/useAjax";
@@ -14,12 +15,12 @@ export default function ImportArticulos() {
     const [data, error, isPending, setConfig] = useAjax();
     const [file, setFile] = useState([]);
     const [errors, setErrors] = useState([]);
-    const [success, setSuccess] = useState(false);
+    const [result, setResult] = useState(null);
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        setResult(null);
         setErrors([]);
-
         if (!file) {
             setErrors((prev) => [
                 "Debes seleccionar el documento de texto a importar",
@@ -48,17 +49,20 @@ export default function ImportArticulos() {
     useEffect(() => {
         if (data && !error) {
             if (data.status === 200) {
-                setSuccess(true);
+
+                setResult(data?.data);
             }
             return;
         }
         if (error) {
-            if (!error.hasOwnProperty(errors)) return
-            setErrors(prev => [...Object.entries(error?.errors).map(([, value]) => value), ...prev])
+            setResult(null);
+            if (!error?.data.errors) return
+
+            setErrors(prev => [...Object.entries(error?.data?.errors).map(([, value]) => value), ...prev])
         }
     }, [data, error]);
     return (
-        <div className="mt-20 flex items-center justify-center flex-col gap-2">
+        <div className="mt-20 w-full flex items-center justify-center flex-col gap-2">
             <form
                 className="flex items-center justify-center flex-col gap-2"
                 onSubmit={(e) => {
@@ -99,13 +103,61 @@ export default function ImportArticulos() {
                     errors.map((er, i) => {
                         return (
                             <Error
-                                className="bg-red-500 text-white px-1 rounded-md text-xs"
+                                className="bg-red-400 text-white px-1 rounded-md text-xs"
                                 key={`${i}-error-importArt`}
                                 message={er}
                             />
                         );
                     })}
             </form>
+            {result !== null ? <div className="mt-4 w-full flex flex-col items-center justify-center">
+                <div className="flex flex-row items-center justify-center gap-4 border-b border-b-black  px-7 mb-2">
+
+                    <div className="flex flex-col items-center ">
+                        <p>artículos</p>
+                        <span className="ml-2">{result?.total}</span>
+                    </div>
+                    <div className="flex flex-col items-center ">
+                        <p>errores</p>
+                        <span className="ml-2">{result?.error}</span>
+                    </div>
+                    <div className="flex flex-col items-center ">
+                        <p>update</p>
+                        <span className="ml-2">{result?.update}</span>
+                    </div>
+                    <div className="flex flex-col items-center ">
+                        <p>inserts</p>
+                        <span className="ml-2">{result?.insert}</span>
+                    </div>
+                </div>
+
+                {Array.isArray(result?.messages) && result?.messages.length > 0 && <div className="flex flex-col gap-1 items-center justify-center">
+                    {result?.messages.map((msg, i) => {
+                        let color = ''
+                        let txt = ''
+                        switch (msg.type) {
+
+                            case 'error':
+                                color = 'bg-red-400'
+                                txt = 'text-white'
+                                break;
+                            case 'update':
+                                color = 'bg-yellow-400'
+                                txt = 'text-black'
+                                break;
+                            case 'insert':
+                                color = 'bg-green-400'
+                                txt = 'text-white'
+                                break;
+                            default:
+                                break;
+                        }
+                        return <p className={`font-bold ${txt} ${color} px-2 py-1 rounded-md  text-xs`} key={`message-${i}-${msg}`}>{msg.message}</p>
+
+                    })}
+                </div>}
+
+            </div> : null}
         </div>
     );
 }

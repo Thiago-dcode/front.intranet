@@ -2,14 +2,17 @@ import { useEffect, useState } from "react";
 import "../../assets/css/components/success.css";
 
 // eslint-disable-next-line react/prop-types
-export default function Success({ messages }) {
+export default function Success({ messages,useShow = true, color = 'bg-green-400' }) {
   const [show, setShow] = useState(true);
 
   useEffect(() => {
-    setTimeout(() => {
-      setShow(false);
-    }, 5000);
-  }, []);
+    setShow(true)
+    if(useShow){
+      setTimeout(() => {
+        setShow(false);
+      }, 5000);
+    }
+  }, [useShow]);
 
   return (
     <>
@@ -25,7 +28,7 @@ export default function Success({ messages }) {
               return (
                 <p
                   key={`${i}-${message}`}
-                  className="font-bold text-white bg-green-400 px-2 py-1   rounded-md  text-xs"
+                  className={`font-bold text-white ${color} px-2 py-1   rounded-md  text-xs`}
                 >
                   {message}
                 </p>
