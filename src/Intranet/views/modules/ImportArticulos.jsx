@@ -129,7 +129,7 @@ export default function ImportArticulos() {
                         <span className="ml-2 text-white bg-orange-400 border-1 rounded-md px-1">{result?.warning}</span>
                     </div>
                     <div className="flex flex-col items-center ">
-                        <p>update</p>
+                        <p>updates</p>
                         <span className="ml-2  text-black bg-yellow-400 border-1 rounded-md px-1 ">{result?.update}</span>
                     </div>
                     <div className="flex flex-col items-center  m-1 ">
