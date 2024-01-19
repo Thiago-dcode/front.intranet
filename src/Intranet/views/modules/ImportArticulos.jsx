@@ -49,12 +49,15 @@ export default function ImportArticulos() {
     useEffect(() => {
         if (data && !error) {
             if (data.status === 200) {
-
+                setFile(null)
+                console.log(data)
                 setResult(data?.data);
             }
             return;
         }
         if (error) {
+            setFile(null)
+            console.log(error)
             setResult(null);
             if (!error?.data.errors) return
 
@@ -63,7 +66,7 @@ export default function ImportArticulos() {
     }, [data, error]);
     return (
         <div className="mt-20 w-full flex items-center justify-center flex-col gap-2">
-            <form
+            {!isPending ? <form
                 className="flex items-center justify-center flex-col gap-2"
                 onSubmit={(e) => {
                     handleSubmit(e);
@@ -86,19 +89,14 @@ export default function ImportArticulos() {
                     type="file"
                 ></input>
 
-                {!isPending ? (
-                    <Button
-                        type="submit"
-                        color={"black"}
-                        bgColor={company.color}
-                        content="Importar"
-                    />
-                ) : (
-                    <>
-                        {" "}
-                        {isPending ? <IsPending size="25" color={company.color} /> : null}
-                    </>
-                )}
+
+                <Button
+                    type="submit"
+                    color={"black"}
+                    bgColor={company.color}
+                    content="Importar"
+                />
+
                 {errors &&
                     errors.map((er, i) => {
                         return (
@@ -109,7 +107,12 @@ export default function ImportArticulos() {
                             />
                         );
                     })}
-            </form>
+            </form> : (
+                <>
+                    {" "}
+                    {isPending ? <IsPending size="25" color={company.color} /> : null}
+                </>
+            )}
             {result !== null ? <div className="mt-4 w-full flex flex-col items-center justify-center">
                 <div className="flex flex-row items-center justify-center gap-4 border-b border-b-black  px-7 mb-2">
 
@@ -119,20 +122,24 @@ export default function ImportArticulos() {
                     </div>
                     <div className="flex flex-col items-center ">
                         <p>errores</p>
-                        <span className="ml-2">{result?.error}</span>
+                        <span className="ml-2 text-white bg-red-400 border-1 rounded-md px-1">{result?.error}</span>
+                    </div>
+                    <div className="flex flex-col items-center ">
+                        <p>avisos</p>
+                        <span className="ml-2 text-white bg-orange-400 border-1 rounded-md px-1">{result?.warning}</span>
                     </div>
                     <div className="flex flex-col items-center ">
                         <p>update</p>
-                        <span className="ml-2">{result?.update}</span>
+                        <span className="ml-2  text-black bg-yellow-400 border-1 rounded-md px-1 ">{result?.update}</span>
                     </div>
-                    <div className="flex flex-col items-center ">
+                    <div className="flex flex-col items-center  m-1 ">
                         <p>inserts</p>
-                        <span className="ml-2">{result?.insert}</span>
+                        <span className="ml-2  text-black bg-green-400 border-1 rounded-md px-1">{result?.insert}</span>
                     </div>
                 </div>
 
                 {Array.isArray(result?.messages) && result?.messages.length > 0 && <div className="flex flex-col gap-1 items-center justify-center">
-                    {result?.messages.map((msg, i) => {
+                    {result?.messages.filter(msg => msg.type !== 'debug').map((msg, i) => {
                         let color = ''
                         let txt = ''
                         switch (msg.type) {
@@ -148,6 +155,10 @@ export default function ImportArticulos() {
                             case 'insert':
                                 color = 'bg-green-400'
                                 txt = 'text-white'
+                                break;
+                            case 'warning':
+                                color = 'bg-orange-400'
+                                txt = 'text-black'
                                 break;
                             default:
                                 break;
