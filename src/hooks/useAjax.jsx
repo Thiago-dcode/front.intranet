@@ -8,9 +8,8 @@ export default function useAjax(
   method = "GET",
   formData = {},
   config = {},
-  headers = {},
+  headers = {}
 ) {
-
   const navigate = useNavigate();
   const [_data, setData] = useState(null);
 
@@ -19,65 +18,58 @@ export default function useAjax(
   const [isPending, setIsPending] = useState(false);
   const [_url, _setUrl] = useState(url);
   const [form, setForm] = useState(formData);
-  const [_method, setMethod] = useState(method)
+  const [_method, setMethod] = useState(method);
 
-
-
-  const setConfig = (__url = '', form = null, method = 'GET') => {
-
+  const setConfig = (__url = "", form = null, method = "GET") => {
     if (__url) _setUrl(__url);
     if (form) setForm(form);
     if (method) setMethod(method);
-
-
-  }
+  };
 
   const ajax = async (signal) => {
-
     setError("");
     setIsPending(true);
     try {
-
       if (_url === "/api/login") {
-
-       await Api.get("/sanctum/csrf-cookie");
-		  
-        }
+        await Api.get("/sanctum/csrf-cookie");
+      }
       if (import.meta.env.DEV) {
-        console.log(form)
+        console.log(form);
       }
 
       const { data } = await Api({
-        method: _method ,
+        method: _method,
         url: _url,
         data: form,
-        headers: { ...headers,...signal },
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Credentials": "true",
+          ...headers,
+          ...signal,
+        },
         params: { ...config },
       });
 
       setData(data);
-
     } catch (error) {
       setError(error?.response?.data);
 
       if (import.meta.env.DEV) {
-
         console.error("UseAjax.jsx Error:", error);
       }
       console.error("UseAjax.jsx Error:", error);
-
     } finally {
       setIsPending(false);
     }
   };
 
   useEffect(() => {
-
     if (!_url) return;
 
     if (
       (_method === "POST" || _method === "PATCH") &&
-      !(Object.keys(form).length)
+      !Object.keys(form).length
     )
       return;
 
@@ -89,10 +81,9 @@ export default function useAjax(
   useEffect(() => {
     if (!_data && error) {
       if (error.status === 401) {
-        ls.clear()
-        navigate('/login')
-        return
-
+        ls.clear();
+        navigate("/login");
+        return;
       }
     }
   }, [_data, error]);
